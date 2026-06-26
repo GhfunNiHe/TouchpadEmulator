@@ -1,10 +1,13 @@
-touchpad-emulator (0.0-2) UNRELEASED; urgency=medium
+touchpad-emulator (0.0-2) stable; urgency=medium
 
-  * Fix: skip EVIOCGRAB on button devices that have EV_SW events (SW_LID),
-    preventing TouchpadEmulator from blocking logind from receiving
-    hall sensor lid switch events on Xiaomi Pad 6S Pro (sheng).
+  * Add --sensitivity CLI argument to control cursor speed divisor
+  * Add Xiaomi Pad 6S Pro to known devices list
+  * Skip EVIOCGRAB for button devices with EV_SW events (SW_LID) so logind
+    can still receive lid open/close events
+  * Fix LaunchTouchpadEmulator.sh: replace echo -e with printf for portability
+  * Update README with device table and CLI arguments documentation
 
- -- Claude <noreply@anthropic.com>  Thu, 26 Jun 2026 00:54:00 +0800
+ -- GhfunNiHe <131235947+GhfunNiHe@users.noreply.github.com>  Thu, 26 Jun 2026 01:00:00 +0800
 
 touchpad-emulator (0.0-1) UNRELEASED; urgency=medium
 

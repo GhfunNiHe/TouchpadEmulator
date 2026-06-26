@@ -63,7 +63,7 @@ typedef struct
     char *  device;
 } event_names_type;
 
-#define NUM_KNOWN_DEVICES 7
+#define NUM_KNOWN_DEVICES 8
 
 static const event_names_type known_devices[NUM_KNOWN_DEVICES] =
 {
@@ -71,6 +71,7 @@ static const event_names_type known_devices[NUM_KNOWN_DEVICES] =
     { "Goodix Capacitive TouchScreen",  "adc-keys",         "",             "",             "PINE64 PinePhone Pro"  },
     { "Synaptics S3706B",               "Volume keys",      "",             "Alert slider", "OnePlus 6T"            },
     { "NVTCapacitiveTouchScreen",       "gpio-keys",        "pm8941_resin", "",             "Xiaomi Pad 5 Pro"      },
+    { "NVTCapacitiveTouchScreen",       "gpio-keys",        "pmic_resin",   "",             "Xiaomi Pad 6S Pro"     },
     { "Synaptics S3706B",               "gpio-keys",        "pm8941_resin", "",             "Google Pixel 3a"       },
     { "nvt-ts",                         "gpio-keys",        "pm8941_resin", "",             "Xiaomi Poco F1"        },
     { "Synaptics PLG218",               "gpio-keys",        "",             "",             "LG Google Nexus 5"     },
@@ -97,6 +98,7 @@ enum
 \*---------------------------------------------------------*/
 char    query_buf[64]       = "";
 int     rotation            = 0;
+int     cursor_divisor      = 1;
 
 bool    no_keyboard         = false;
 
@@ -992,6 +994,21 @@ int main(int argc, char* argv[])
             start_disabled = true;
         }
 
+        /*-------------------------------------------------*\
+        | Set cursor sensitivity divisor (higher = slower)  |
+        \*-------------------------------------------------*/
+        if(strcmp(option, "--sensitivity") == 0)
+        {
+            cursor_divisor = atoi(argument);
+
+            if(cursor_divisor < 1)
+            {
+                cursor_divisor = 1;
+            }
+
+            arg_index++;
+        }
+
         arg_index++;
     }
 
@@ -1129,8 +1146,20 @@ int main(int argc, char* argv[])
 
     /*-----------------------------------------------------*\
     | Open the buttons device and grab exclusive access     |
+    | Skip grab if device provides switch events (SW_LID)   |
+    | so logind can still receive lid open/close events     |
     \*-----------------------------------------------------*/
-    ioctl(button_0_fd, EVIOCGRAB, 1);
+    {
+        unsigned long sw_bits = 0;
+        if (ioctl(button_0_fd, EVIOCGBIT(EV_SW, sizeof(sw_bits) * 8), &sw_bits) >= 0 && sw_bits != 0)
+        {
+            printf("    Not grabbing button_0: device has EV_SW events (e.g. SW_LID)\r\n");
+        }
+        else
+        {
+            ioctl(button_0_fd, EVIOCGRAB, 1);
+        }
+    }
     ioctl(button_1_fd, EVIOCGRAB, 1);
   
     /*-----------------------------------------------------*\
@@ -1522,11 +1551,11 @@ int main(int argc, char* argv[])
                             {
                                 if(rotation == 0 || rotation == 180)
                                 {
-                                    emit(virtual_mouse_fd, EV_REL, REL_X, touchscreen_event.value - prev_x);
+                                    emit(virtual_mouse_fd, EV_REL, REL_X, (touchscreen_event.value - prev_x) / cursor_divisor);
                                 }
                                 else if(rotation == 90 || rotation == 270)
                                 {
-                                    emit(virtual_mouse_fd, EV_REL, REL_Y, touchscreen_event.value - prev_x);
+                                    emit(virtual_mouse_fd, EV_REL, REL_Y, (touchscreen_event.value - prev_x) / cursor_divisor);
                                 }
                             }
                                 
@@ -1604,11 +1633,11 @@ int main(int argc, char* argv[])
                             {
                                 if(rotation == 0 || rotation == 180)
                                 {
-                                    emit(virtual_mouse_fd, EV_REL, REL_Y, touchscreen_event.value - prev_y);
+                                    emit(virtual_mouse_fd, EV_REL, REL_Y, (touchscreen_event.value - prev_y) / cursor_divisor);
                                 }
                                 else if(rotation == 90 || rotation == 270)
                                 {
-                                    emit(virtual_mouse_fd, EV_REL, REL_X, touchscreen_event.value - prev_y);
+                                    emit(virtual_mouse_fd, EV_REL, REL_X, (touchscreen_event.value - prev_y) / cursor_divisor);
                                 }
                             }
             

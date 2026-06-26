@@ -3,14 +3,7 @@
 if [ "$1" = "--autostart" ] ; then
     mkdir -p ~/.config/autostart
 
-    AUTOSTART=""
-    AUTOSTART+="[Desktop Entry]\r\n"
-    AUTOSTART+="Type=Application\r\n"
-    AUTOSTART+="Name=Touchpad Emulator Autostart\r\n"
-    AUTOSTART+="Exec=sh -c \"LaunchTouchpadEmulator.sh --start-disabled --force-autorotation\"\r\n"
-    AUTOSTART+="Icon=TouchpadEmulator\r\n"
-
-    echo -e $AUTOSTART > ~/.config/autostart/TouchpadEmulator-Autostart.desktop
+    printf '[Desktop Entry]\nType=Application\nName=Touchpad Emulator Autostart\nExec=sh -c "LaunchTouchpadEmulator.sh --start-disabled --force-autorotation"\nIcon=TouchpadEmulator\n' > ~/.config/autostart/TouchpadEmulator-Autostart.desktop
 
     echo "Autostart enabled, TouchpadEmulator will start automatically on login."
     exit

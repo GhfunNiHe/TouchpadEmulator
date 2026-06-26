@@ -15,6 +15,7 @@ This application has been tested on all of the devices in the table below using 
 | PINE64 PinePhone Pro | "Goodix Capacitive TouchScreen" | "adc-keys"                  | N/A            |
 | OnePlus 6T           | "Synaptics S3706B"              | "Volume keys"               | "Alert slider" |
 | Xiaomi Pad 5 Pro     | "NVTCapacitiveTouchScreen"      | "gpio-keys", "pm8941_resin" | N/A            |
+| Xiaomi Pad 6S Pro    | "NVTCapacitiveTouchScreen"      | "gpio-keys", "pmic_resin"   | N/A            |
 | Google Pixel 3a      | "Synaptics S3706B"              | "gpio-keys", "pm8941_resin" | N/A            |
 | Xiaomi Poco F1       | "nvt-ts"                        | "gpio-keys", "pm8941_resin" | N/A            |
 | LG Google Nexus 5    | "Synaptics PLG218"              | "gpio-keys"                 | N/A            |
@@ -73,6 +74,22 @@ After setting up permissions, you can enable Touchpad Emulator to automatically 
 * `LaunchTouchpadEmulator.sh --autostart`
 
 You can then edit the `~/.config/autostart/TouchpadEmulator-Autostart.desktop` file to add any desired command line arguments.  A 5 second sleep is added before autostarting by default to allow dbus to become ready, otherwise TouchpadEmulator may not be able to detect screen rotation changes.
+
+### Command Line Arguments
+
+The following arguments can be passed to the shell launcher or directly to the `TouchpadEmulator` binary:
+
+| Argument                 | Description                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| `--force-autorotation`   | Force enable orientation polling even if initial sensor reading is invalid (useful during boot before sensor proxy initializes) |
+| `--no-buttons`           | Disable volume buttons for mode switching                                      |
+| `--no-keyboard`          | Disable on-screen keyboard toggling                                            |
+| `--no-slider`            | Disable alert slider for mode switching                                        |
+| `--rotation-override N`  | Manually set screen rotation (0, 90, 180, 270) instead of using automatic detection |
+| `--start-disabled`       | Start in touchscreen mode (touchpad disabled), toggle with volume keys/slider  |
+| `--sensitivity N`        | Set cursor speed divisor (default: 1). Higher values make the cursor slower.    |
+
+> **Note:** `--force-autorotation` and `--start-disabled` are used by default in the autostart entry.
 
 ## Controls
 
